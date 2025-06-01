@@ -1,0 +1,78 @@
+pipeline:
+  name: Deploy Joe Lang Website
+  identifier: deploy_joe_lang_website
+  projectIdentifier: joe_lang_portfolio
+  orgIdentifier: default
+  tags: {}
+  stages:
+    - stage:
+        name: Build and Deploy
+        identifier: build_and_deploy
+        description: Build and deploy static website to AWS S3
+        type: Deployment
+        spec:
+          deploymentType: ServerlessAwsLambda
+          service:
+            serviceRef: joe_lang_website_service
+          environment:
+            environmentRef: production
+            deployToAll: false
+            infrastructureDefinitions:
+              - identifier: aws_s3_infrastructure
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Prepare Files
+                  identifier: prepare_files
+                  spec:
+                    connectorRef: account.harnessImage
+                    image: alpine:latest
+                    shell: Sh
+                    command: |
+                      echo "Preparing website files for deployment..."
+                      ls -la
+                      echo "Files ready for S3 upload"
+              - step:
+                  type: S3Upload
+                  name: Upload to S3
+                  identifier: upload_to_s3
+                  spec:
+                    connectorRef: <+input>
+                    region: us-west-2
+                    bucket: <+input>
+                    sourcePath: .
+                    target: /
+                  timeout: 10m
+              - step:
+                  type: Run
+                  name: Configure S3 Website
+                  identifier: configure_s3_website
+                  spec:
+                    connectorRef: account.harnessImage
+                    image: amazon/aws-cli:latest
+                    shell: Sh
+                    command: |
+                      echo "Configuring S3 bucket for static website hosting..."
+                      aws s3 website s3://<+pipeline.variables.bucket_name> --index-document index.html --error-document index.html
+                      echo "Website configuration complete"
+                      echo "Website URL: http://<+pipeline.variables.bucket_name>.s3-website-<+pipeline.variables.aws_region>.amazonaws.com"
+        tags: {}
+        failureStrategies:
+          - onFailure:
+              errors:
+                - AllErrors
+              action:
+                type: StageRollback
+  variables:
+    - name: bucket_name
+      type: String
+      description: S3 bucket name for website hosting
+      required: true
+      value: <+input>
+    - name: aws_region
+      type: String
+      description: AWS region for S3 bucket
+      required: true
+      value: us-west-2
+  notificationRules: []

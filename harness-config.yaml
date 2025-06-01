@@ -1,0 +1,39 @@
+project:
+  name: Joe Lang Portfolio
+  identifier: joe_lang_portfolio
+  description: Professional portfolio website for Joe Lang
+  orgIdentifier: default
+  tags:
+    purpose: portfolio
+    owner: joe_lang
+    deployment: s3_static_website
+
+pipelines:
+  - name: deploy-website
+    file: .harness/pipelines/deploy-website.yaml
+    description: Deploy static website to AWS S3
+
+secrets:
+  - name: aws_access_key_id
+    description: AWS Access Key ID for S3 deployment
+    type: SecretText
+  - name: aws_secret_access_key
+    description: AWS Secret Access Key for S3 deployment
+    type: SecretText
+
+git:
+  repository: Hey-Lang-Inc/test
+  branch: main
+  paths:
+    - "*.html"
+    - "*.css" 
+    - "*.pdf"
+    - ".harness/"
+
+deployment:
+  target: aws_s3
+  region: us-west-2
+  bucket_naming: joe-lang-portfolio-${random_suffix}
+  website_hosting: enabled
+  index_document: index.html
+  error_document: index.html

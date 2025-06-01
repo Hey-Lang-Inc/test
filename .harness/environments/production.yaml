@@ -1,0 +1,19 @@
+environment:
+  name: Production
+  identifier: production
+  description: Production environment for Joe Lang website
+  type: Production
+  orgIdentifier: default
+  projectIdentifier: joe_lang_portfolio
+  tags: {}
+  variables:
+    - name: aws_region
+      type: String
+      description: AWS region for deployment
+      required: false
+      value: us-west-2
+    - name: environment_type
+      type: String
+      description: Environment type
+      required: false
+      value: production

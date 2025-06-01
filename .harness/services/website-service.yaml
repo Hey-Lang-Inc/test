@@ -1,0 +1,34 @@
+service:
+  name: Joe Lang Website Service
+  identifier: joe_lang_website_service
+  orgIdentifier: default
+  projectIdentifier: joe_lang_portfolio
+  serviceDefinition:
+    type: ServerlessAwsLambda
+    spec:
+      manifests:
+        - manifest:
+            identifier: website_files
+            type: ServerlessAwsLambda
+            spec:
+              store:
+                type: Git
+                spec:
+                  connectorRef: <+input>
+                  gitFetchType: Branch
+                  paths:
+                    - "*.html"
+                    - "*.css"
+                    - "*.pdf"
+                  repoName: <+input>
+                  branch: main
+      artifacts:
+        primary:
+          primaryArtifactRef: <+input>
+          sources:
+            - spec:
+                connectorRef: <+input>
+                imagePath: <+input>
+              identifier: website_artifact
+              type: DockerRegistry
+  gitOpsEnabled: false

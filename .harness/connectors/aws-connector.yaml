@@ -1,0 +1,15 @@
+connector:
+  name: AWS S3 Connector
+  identifier: aws_s3_connector
+  description: AWS connector for S3 deployment
+  orgIdentifier: default
+  projectIdentifier: joe_lang_portfolio
+  type: Aws
+  spec:
+    credential:
+      type: ManualConfig
+      spec:
+        accessKey: <+secrets.getValue("aws_access_key_id")>
+        secretKey: <+secrets.getValue("aws_secret_access_key")>
+    region: us-west-2
+    executeOnDelegate: true
